@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bus Ticket Booking</title>
+  <style>
+    body {font-family: Arial, sans-serif; background: #f9f9f9; margin:0; padding:0; color:#333;}
+    header {background: #2a8cff; color: #fff; padding: 12px; text-align:center; font-size:20px;}
+    nav {background: #1f6dcc; padding:10px; text-align:center;}
+    nav a {color:#fff; margin:0 10px; text-decoration:none; font-size:15px;}
+    nav a:hover {text-decoration:underline;}
+    .container {width:95%; max-width:600px; margin:20px auto; background:#fff; padding:15px; border-radius:8px; border:1px solid #ddd;}
+    h2 {font-size:18px; margin-bottom:10px;}
+    label {display:block; margin:8px 0 4px; font-size:14px;}
+    input, select, button, textarea {width:100%; padding:8px; margin-bottom:12px; border:1px solid #ccc; border-radius:4px; font-size:14px;}
+    button {background:#2a8cff; color:#fff; border:none; cursor:pointer; font-size:15px;}
+    button:hover {background:#1f6dcc;}
+    .bus {border:1px solid #ccc; padding:10px; border-radius:6px; margin-bottom:8px; cursor:pointer; font-size:14px;}
+    .bus:hover {background:#f0f8ff;}
+    .seats {display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:12px;}
+    .seat {padding:10px; background:#eee; text-align:center; border-radius:4px; cursor:pointer; font-size:13px;}
+    .seat.booked {background:#f77; color:#fff; cursor:not-allowed;}
+    .seat.selected {background:#4CAF50; color:#fff;}
+    .ticket {background:#f0f8ff; padding:12px; border:1px dashed #2a8cff; border-radius:6px; font-size:14px;}
+    p {margin:6px 0; font-size:14px;}
+  </style>
+</head>
+<body>
+<header>🚌 Bus Ticket Booking</header>
+
+<nav>
+  <a href="#" onclick="showSection('home')">Home</a>
+  <a href="#" onclick="showSection('login')">Login</a>
+  <a href="#" onclick="showSection('register')">Registration</a>
+  <a href="#" onclick="showSection('contact')">Contact Us</a>
+  <a href="#" onclick="showSection('booking')">Bus Booking</a>
+</nav>
+
+<!-- Home Section -->
+<div class="container" id="home">
+  <h2>Welcome to Bus Ticket Booking</h2>
+</div>
+
+<!-- Login Section -->
+<div class="container" id="login" style="display:none;">
+  <h2>Login</h2>
+  <label>Email:</label>
+  <input type="email" id="loginEmail" required>
+  <label>Password:</label>
+  <input type="password" id="loginPass" required>
+  <button onclick="loginUser()">Login</button>
+</div>
+
+<!-- Registration Section -->
+<div class="container" id="register" style="display:none;">
+  <h2>Register</h2>
+  <label>Name:</label>
+  <input type="text" id="regName" required>
+  <label>Email:</label>
+  <input type="email" id="regEmail" required>
+  <label>Password:</label>
+  <input type="password" id="regPass" required>
+  <button onclick="registerUser()">Register</button>
+</div>
+
+<!-- Contact Us Section -->
+<div class="container" id="contact" style="display:none;">
+  <h2>Contact Us</h2>
+  <label>Name:</label>
+  <input type="text" id="contactName" required>
+  <label>Email:</label>
+  <input type="email" id="contactEmail" required>
+  <label>Message:</label>
+  <textarea id="contactMessage" rows="4"></textarea>
+  <button onclick="submitContact()">Submit</button>
+</div>
+
+<!-- Bus Booking Section -->
+<div class="container" id="booking" style="display:none;">
+  <h2>Search Buses</h2>
+  <label>From:</label>
+  <input type="text" id="from" required>
+  <label>To:</label>
+  <input type="text" id="to" required>
+  <label>Date:</label>
+  <input type="date" id="date" required>
+  <button onclick="searchBuses()">Search</button>
+</div>
+
+<!-- Available Buses -->
+<div class="container" id="bus-list" style="display:none;">
+  <h2>Available Buses</h2>
+  <div class="bus" onclick="showSeats('Super Deluxe',500)">Super Deluxe - ₹500</div>
+  <div class="bus" onclick="showSeats('AC Sleeper',800)">AC Sleeper - ₹800</div>
+  <div class="bus" onclick="showSeats('Non-AC Seater',300)">Non-AC Seater - ₹300</div>
+</div>
+
+<!-- Seat Selection -->
+<div class="container" id="seat-layout" style="display:none;">
+  <h2>Select Seats (<span id="busName"></span>)</h2>
+  <div class="seats" id="seats"></div>
+  <p><strong>Fare per Seat:</strong> ₹<span id="fare"></span></p>
+  <p><strong>Total Fare:</strong> ₹<span id="totalFare">0</span></p>
+  <button onclick="goToPassengerForm()">Proceed</button>
+</div>
+
+<!-- Passenger Details -->
+<div class="container" id="passenger-form" style="display:none;">
+  <h2>Passenger Details</h2>
+  <label>Name:</label>
+  <input type="text" id="pname" required>
+  <label>Phone:</label>
+  <input type="text" id="phone" required>
+  <label>Email:</label>
+  <input type="email" id="email" required>
+  <button onclick="goToPayment()">Proceed to Payment</button>
+</div>
+
+<!-- Payment -->
+<div class="container" id="payment-form" style="display:none;">
+  <h2>Payment</h2>
+  <p><strong>Total Amount:</strong> ₹<span id="payAmount"></span></p>
+  <label>Payment Method:</label>
+  <select id="paymentMethod">
+    <option value="Card">Credit/Debit Card</option>
+    <option value="UPI">UPI</option>
+    <option value="NetBanking">Net Banking</option>
+  </select>
+  <label>Enter Payment Details:</label>
+  <input type="text" id="paymentDetails" placeholder="Card/UPI ID" required>
+  <button onclick="confirmBooking()">Pay Now</button>
+</div>
+
+<!-- Ticket -->
+<div class="container" id="ticket-section" style="display:none;">
+  <h2>✅ Booking Confirmed</h2>
+  <div class="ticket" id="ticket"></div>
+</div>
+
+<script>
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+  let selectedFare = 0;
+
+  function showSection(section) {
+    const sections = ['home','login','register','contact','booking','bus-list','seat-layout','passenger-form','payment-form','ticket-section'];
+    sections.forEach(sec => document.getElementById(sec).style.display = (sec===section) ? 'block' : 'none');
+  }
+
+  function registerUser() {
+    const name = document.getElementById('regName').value;
+    const email = document.getElementById('regEmail').value;
+    const pass = document.getElementById('regPass').value;
+    if(!name||!email||!pass){alert('Fill all fields'); return;}
+    if(users.find(u=>u.email===email)){alert('Email already registered'); return;}
+    users.push({name,email,pass});
+    localStorage.setItem('users',JSON.stringify(users));
+    alert('Registration Successful');
+    showSection('login');
+  }
+
+  function loginUser() {
+    const email = document.getElementById('loginEmail').value;
+    const pass = document.getElementById('loginPass').value;
+    const user = users.find(u=>u.email===email && u.pass===pass);
+    if(user){alert('Login Successful'); showSection('home');}
+    else{alert('Invalid Email or Password');}
+  }
+
+  function submitContact() {
+    const name=document.getElementById('contactName').value;
+    const email=document.getElementById('contactEmail').value;
+    const msg=document.getElementById('contactMessage').value;
+    if(!name||!email||!msg){alert('Fill all fields'); return;}
+    alert('Thank you for contacting us, '+name+'!');
+    document.getElementById('contactName').value='';
+    document.getElementById('contactEmail').value='';
+    document.getElementById('contactMessage').value='';
+  }
+
+  function searchBuses(){ showSection('bus-list'); }
+
+  function showSeats(bus,fare){
+    showSection('seat-layout');
+    document.getElementById('busName').innerText=bus;
+    document.getElementById('fare').innerText=fare;
+    selectedFare=fare;
+    const seatsDiv=document.getElementById('seats');
+    seatsDiv.innerHTML='';
+    for(let i=1;i<=20;i++){
+      const seat=document.createElement('div');
+      seat.classList.add('seat');
+      seat.innerText=i;
+      if(Math.random()<0.3) seat.classList.add('booked');
+      else seat.addEventListener('click',()=>{seat.classList.toggle('selected'); updateFare();});
+      seatsDiv.appendChild(seat);
+    }
+  }
+
+  function updateFare(){
+    const selectedSeats=document.querySelectorAll('.seat.selected').length;
+    document.getElementById('totalFare').innerText=selectedSeats*selectedFare;
+  }
+
+  function goToPassengerForm(){
+    if(document.querySelectorAll('.seat.selected').length===0){alert('Select at least one seat'); return;}
+    showSection('passenger-form');
+  }
+
+  function goToPayment(){
+    if(!document.getElementById('pname').value||!document.getElementById('phone').value||!document.getElementById('email').value){alert('Fill all passenger details'); return;}
+    document.getElementById('payAmount').innerText=document.getElementById('totalFare').innerText;
+    showSection('payment-form');
+  }
+  function confirmBooking(){
+    if(!document.getElementById('paymentDetails').value){
+        alert('Please enter payment details!');
+        return;
+    }
+    const pname=document.getElementById('pname').value;
+    const phone=document.getElementById('phone').value;
+    const email=document.getElementById('email').value;
+    const seatNumbers=Array.from(document.querySelectorAll('.seat.selected')).map(s=>s.innerText).join(', ');
+    const busName=document.getElementById('busName').innerText;
+    const totalFare=document.getElementById('totalFare').innerText;
+    const paymentMethod=document.getElementById('paymentMethod').value;
+
+    // Show ticket directly
+    document.getElementById('ticket').innerHTML=`
+      <p><strong>Name:</strong> ${pname}</p>
+      <p><strong>Phone:</strong> ${phone}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Bus:</strong> ${busName}</p>
+      <p><strong>Seats:</strong> ${seatNumbers}</p>
+      <p><strong>Total Fare:</strong> ₹${totalFare}</p>
+      <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+      <button onclick="cancelTicket()">Cancel Ticket</button>
+    `;
+    showSection('ticket-section');
+}
+
+function displayTicket(ticket){
+    document.getElementById('ticket').innerHTML=`
+      <p><strong>Name:</strong> ${ticket.pname}</p>
+      <p><strong>Phone:</strong> ${ticket.phone}</p>
+      <p><strong>Email:</strong> ${ticket.email}</p>
+      <p><strong>Bus:</strong> ${ticket.busName}</p>
+      <p><strong>Seats:</strong> ${ticket.seatNumbers}</p>
+      <p><strong>Total Fare:</strong> ₹${ticket.totalFare}</p>
+      <p><strong>Payment Method:</strong> ${ticket.paymentMethod}</p>
+      <button onclick="cancelTicket(${ticket.id})">Cancel Ticket</button>
+    `;
+    showSection('ticket-section');
+}
+function cancelTicket(ticketId){
+    if(confirm("Are you sure you want to cancel this ticket?")){
+        bookedTickets = bookedTickets.filter(t => t.id !== ticketId);
+        localStorage.setItem('bookedTickets', JSON.stringify(bookedTickets));
+        alert("Ticket cancelled successfully!");
+        showSection('home');
+    }
+}
+</script>
+</body>
+</html>
